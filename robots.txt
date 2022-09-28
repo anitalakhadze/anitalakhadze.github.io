@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://anitalakhadze.github.io/sitemap.xml
