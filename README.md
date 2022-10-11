@@ -10,7 +10,7 @@ built with Jekyll.
 
 ## Getting Started
 
--  `sudo apt install ruby-full -y`
+-  `sudo apt install ruby-full node -y`
 -  `gem install jekyll sass bundler jekyll-minifier jekyll-sitemap`
 -  `npm install`
 -  `npm start`

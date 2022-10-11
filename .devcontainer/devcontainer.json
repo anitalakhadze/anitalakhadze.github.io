@@ -1,0 +1,18 @@
+{
+    "name": "SoftGroup",
+  
+    // The order of the files is important since later files override previous ones
+    "dockerComposeFile": ["../docker-compose.yml"],
+	"postStartCommand": "git config --global --add safe.directory /code/app",
+    "service": "app",
+    "workspaceFolder": "/code/app",
+	"shutdownAction": "stopCompose",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				
+			]
+		}
+	}
+  }
+  

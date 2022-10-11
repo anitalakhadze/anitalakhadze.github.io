@@ -10,7 +10,7 @@
   "main": "gulpfile.js",
   "scripts": {
     "start": "gulp serve --watch",
-    "build": "gulp build"
+    "build": "gulp build --open false"
   },
   "author": "Ani Talakhadze",
   "license": "ISC",
