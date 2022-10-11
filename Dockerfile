@@ -13,4 +13,5 @@ WORKDIR /code/app
 COPY package.json .
 RUN npm install
 COPY . .
-ENTRYPOINT npm run start
+# ENTRYPOINT npm run start
+CMD tail -f /dev/null
