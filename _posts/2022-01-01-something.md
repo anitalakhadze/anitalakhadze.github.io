@@ -22,14 +22,14 @@ When you add the sealed keyword to a class or interface’s declaration, you’r
 
 For example, suppose you create a class Animal and you want only the classes Cat and Dog to extend it:
 
-```
+```java
 public abstract sealed class Animal permits Cat, Dog {
 }
 ```
 
 The subclasses must be final, sealed or non-sealed:
 
-```
+```java
 public final class Cat extends Animal {
 }
 ```
@@ -44,14 +44,16 @@ Records are data-only classes that take care of all the boilerplate code for POJ
 
 You can declare a record in the following manner:
 
-```
+```java
 public record PersonRecord(String name, Integer age) {
 }
 ```
 
 Records are final and immutable. In a Record, you may specify both non-static and static methods:
 
-```
+<!-- ![cat](https://storage.googleapis.com/anita-website-cdn/Cat.jpeg) -->
+
+```java
 public record PersonRecord(String name, Integer age) {
     public boolean isOver18() {
         return age() > 18;
@@ -63,7 +65,7 @@ public record PersonRecord(String name, Integer age) {
 ```
 Records can have multiple constructors. It’s also worth noting that if you specify a custom constructor within the record, it must call the default constructor. The record would otherwise be unsure what to do with its values:
 
-```
+```java
 public record PersonRecord(String name, Integer age) {    
     public PersonRecord() {
         this("Name", 18);
@@ -72,7 +74,7 @@ public record PersonRecord(String name, Integer age) {
 ```
 It’s acceptable if your constructor is the same as the default, as long as you also initialize all of the record’s fields:
 
-```
+```java
 public record PersonRecord(String name, Integer age) {
     // Will replace the default constructor
     public PersonRecord(String name, Integer age) {
@@ -91,7 +93,7 @@ Pattern matching is a means to eliminate needless casting after an instanceof co
 
 We're all familiar with this situation:
 
-```
+```java
 public class PatternMatching {
     public static void main(String[] args) {
         Animal animal = new Cat();
@@ -103,7 +105,7 @@ public class PatternMatching {
 ```
 That being written, there is no doubt that the animal on the second line is a Cat — the instanceof has already confirmed this. With pattern matching, a little adjustment can be made:
 
-```
+```java
 if (animal instanceof Cat cat) {
     System.out.println(cat.meow());
 }
@@ -112,7 +114,7 @@ The compiler now handles all of the details of casting the object. It may appear
 
 This also works when you enter a conditional branch when the type of the object is obvious:
 
-```
+```java
 if (!(animal instanceof Cat cat)) {
     System.out.println("This isn't a cat!");
 } else {
@@ -121,7 +123,7 @@ if (!(animal instanceof Cat cat)) {
 ```
 Pattern matching can even be used on the same line as the instanceof itself:
 
-```
+```java
 public static boolean isCat(Object animal) {
     return animal instanceof Cat cat && cat.meow().equals("meow");
 }
@@ -135,7 +137,7 @@ This language feature adds the ability to switch depending on type, analogous to
 
 Previously, if you wanted to perform various things depending on an object’s dynamic type, you had to create an if — else if chain using instanceof checks, such as:
 
-```
+```java
 public class SwitchExpression {
     private static String ifElseIfSwitch(Object o) {
         if (o instanceof Cat) {
@@ -150,7 +152,7 @@ public class SwitchExpression {
 ```
 Or switch cases:
 
-```
+```java
 private static String legacySwitch(Object o) {
     switch (o) {
         case Cat:
@@ -169,7 +171,7 @@ They are extremely prone to human mistake. Switch expressions solve this problem
 
 The above example may be simplified to the following:
 
-```
+```java
 private static String modernSwitch(Object o) {
     return switch (o) {
         case Cat cat -> "This is a cat";
@@ -184,7 +186,7 @@ They also added a special case of null, so you don’t have to check for null an
 
 The new yield keyword is also a significant feature. If one of your cases goes into a block of code, yield is used as the switch expression’s return statement. For instance, consider the above code block, which has been slightly modified:
 
-```
+```java
 String whichAnimal = switch (o) {
     case Cat cat -> "This is a cat";
     case Dog dog -> "This is a dog";
@@ -206,7 +208,7 @@ Helpful null pointers are certainly a good addition to the language. They make n
 
 For example, if you called person.getAge() and the age parameter was undefined:
 
-```
+```java
 public class NullPointer {
     public static void main(String[] args) {
         Person ani = new Person("Ani", "Talakhadze", null);
@@ -233,7 +235,7 @@ Text blocks are a way to make composing multi-line strings easier by allowing ne
 
 To make a text block, simply use the following syntax:
 
-```
+```java
 package textBlocks;
 public class TextBlock {
     public static void main(String[] args) {
@@ -248,9 +250,13 @@ public class TextBlock {
     }
 }
 ```
+*Output after running TextBlock*
+![Sample Output 1](https://storage.googleapis.com/
+anita-website-cdn/1_SbfQU5lkPeyHXFwzLzP6JA.png)
+
 Similarly, you don’t require any escape characters if you wish to use quotes. This program will run without any complaints:
 
-```
+```java
 String text = """
         Hello
         World!
@@ -259,10 +265,13 @@ String text = """
         "World!"
         """;
 ```
+*Output after running TextBlock*
+![Sample Output 2](https://storage.googleapis.com/anita-website-cdn/2_iRLQbkbmgpOKZHdPWBUGEg.png)
+
 Aside from that, you can use the String’s format() function to format what you’ve typed, allowing you to quickly alter data inside text blocks with dynamic values:
 
-```
-String name = "Anita";
+```java
+String name = "Ani";
 String text = String.format("""
         Hello
         World!
@@ -270,6 +279,9 @@ String text = String.format("""
         My name is %s.
         """, name);
 ```
+*Output after running TextBlock*
+![Sample Output 2](https://storage.googleapis.com/anita-website-cdn/3_iRLQbkbmgpOKZHdPWBUGEg.png)
+
 Text Blocks make it significantly easier to paste bits of code into strings, in addition to being able to visibly bake in the formatting for a huge block of words. Because indentation is kept, you could create a block of HTML or Python, or any other language for that matter, and just wrap it in ”””. Text Blocks may also be used to create JSON, and the format() function can be used to simply fill in data.
 
 
