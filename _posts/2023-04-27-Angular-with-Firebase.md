@@ -2,11 +2,11 @@
 layout: post
 title: Angular with Firebase Auth
 subtitle: Ultimate Guide
-# thumbnail-img: /assets/img/java_clipart.png
-# cover-img: /assets/img/blog_bg.png
-# gh-repo: anitalakhadze/java17features
-# gh-badge: [star, fork, follow]
-# tags: [java17, java12]
+thumbnail-img: /assets/img/angular_with_firebase.png
+cover-img: /assets/img/blog_bg.png
+gh-repo: anitalakhadze/angular-firebase-auth
+gh-badge: [star, fork, follow]
+tags: [angular, firebase, auth, authentication]
 comments: true
 ---
 
@@ -34,6 +34,32 @@ ng new angular-firebase-auth
 
 This will create a new Angular project with the name `angular-firebase-auth`.
 
+*A quick note:*  
+**_Angular 15 simply doesn't ship anymore environment files by default. You can still create them and configure their replacement based on build target as it was done automatically at project creation in previous versions._**
+
+If you are using Angular 15 cli, open the terminal and just run this command to create environments folder: 
+
+```
+ng g environments
+```
+
+Run the following command to install the dependencies once you open the project for the first time: 
+
+```
+npm install
+```
+
+Finally, run this to add the official Angular library for Firebase: 
+
+```
+ng add @angular/fire
+```
+
+For setting up all the Firebase configurations for us, You will be asked to provide some information. For the features that we would like to setip, you can choose only Authentication for this tutorial. Then select the Firebase account we’d like to use, and which project we want to setup. Select the project we created previously, and then select the app we also created earlier. Your configuration should look something like this:
+
+![Angular Firebase Configuration](https://storage.googleapis.com/anita-website-cdn/angular-firebase-auth-sh2.png)
+
+
 ## Step 2: Create a new Firebase project
 
 The next step is to create a new Firebase project. Go to the Firebase console and click on "Add project". Give your project a name and click on "Create project".
@@ -43,3 +69,142 @@ Once your project is created, click on "Authentication" on the left-hand menu an
 For this tutorial, we will enable email/password and GAuth methods.
 
 ![setting up auth methods](https://storage.googleapis.com/anita-website-cdn/angular-firebase-auth-sh1.png)
+
+
+## Step 3: Install Firebase SDK
+
+To use Firebase Authentication in our Angular application, you need to install the Firebase SDK. You can do this by running the following command in your terminal:
+
+```
+npm install firebase --save
+```
+
+## Step 4: Set up Firebase Authentication in our Angular application
+
+Once we have installed the Firebase SDK, we need to set up Firebase Authentication service in our Angular application. Create a new service called auth.service.ts and add the following code:
+
+```typescript
+import { Injectable } from '@angular/core';
+import {AngularFireAuth} from "@angular/fire/compat/auth";
+import firebase from 'firebase/compat/app';
+import auth = firebase.auth;
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  user: firebase.User | null | undefined;
+
+  constructor(private afAuth: AngularFireAuth) {
+    this.afAuth.authState.subscribe(user => {
+      this.user = user;
+    });
+  }
+
+  async emailAndPasswordLogin(email: string, password: string) {
+    try {
+      const result = await this.afAuth.signInWithEmailAndPassword(email, password);
+      this.user = result.user;
+      return this.user;
+    } catch (error) {
+      console.log('Error logging in with email and password', error);
+      throw error;
+    }
+  }
+
+  async googleLogin() {
+    try {
+      const provider = new auth.GoogleAuthProvider();
+      const result = await this.afAuth.signInWithPopup(provider);
+      this.user = result.user;
+      return this.user;
+    } catch (error) {
+      console.log('Error logging in with Google', error);
+      throw error;
+    }
+  }
+
+  async logout() {
+    try {
+      await this.afAuth.signOut();
+      this.user = null;
+    } catch (error) {
+      console.log('Error logging out', error);
+      throw error;
+    }
+  }
+}
+```
+
+This service provides the basic functionalities for user authentication, such as logging in and logging out. It uses the AngularFireAuth module to interact with Firebase Authentication.
+
+## Step 5: Set up Firebase Configuration
+
+To connect out Angular application to Firebase, first, we should add Firebase configuration in our Angular app's `environment.ts` file (make sure to add it in other environment files too, if such exist).
+
+```
+export const environment = {
+  production: true,
+  firebase: {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  }
+};
+```
+
+*You will need to replace the placeholders with you own Firebase project information, that can be found in the Firebase Console under "Project Settings"*
+
+You can find your Firebase Configuration in the Firebase Console under "Project settings":
+
+![Firebase Configuration in Firebase Console](https://storage.googleapis.com/anita-website-cdn/angular-firebase-auth-sh3.png)
+
+Fortunately, as we are using the firebase library, these configuration is already set up in our environment files. 
+
+Once we have added our Firebase configuration, we can access it in our Angular app by importing it and referencing it in your Firebase module import:
+
+```typescript
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { AngularFireModule } from '@angular/fire';
+import { environment } from '../environments/environment';
+
+import { AppComponent } from './app.component';
+
+@NgModule({
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    AngularFireModule.initializeApp(environment.firebase)
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule {}
+```
+
+This code initializes the Firebase app with your Firebase configuration from your environment.ts file using the AngularFireModule.
+
+This is also taken care of with the help of the library. 
+
+
+## Step 5: Setup a simple login form
+
+Add Angular Material to easily style our page:
+
+```
+ng add @angular/material
+```
+
+Add [Toastr](https://www.npmjs.com/package/ngx-toastr) dependency for displaying notifications easily:
+
+```
+npm install ngx-toastr --save
+```
+
+
+
+
