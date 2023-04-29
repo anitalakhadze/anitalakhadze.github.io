@@ -87,7 +87,6 @@ Once we have installed the Firebase SDK, we need to set up Firebase Authenticati
 import { Injectable } from '@angular/core';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import firebase from 'firebase/compat/app';
-import auth = firebase.auth;
 
 @Injectable({
   providedIn: 'root'
@@ -112,9 +111,20 @@ export class AuthService {
     }
   }
 
+  async emailAndPasswordRegister(email: string, password: string) {
+    try {
+      const result = await this.afAuth.createUserWithEmailAndPassword(email, password);
+      this.user = result.user;
+      return this.user;
+    } catch (error) {
+      console.log('Error registering with email and password', error);
+      throw error;
+    }
+  }
+
   async googleLogin() {
     try {
-      const provider = new auth.GoogleAuthProvider();
+      const provider = new firebase.auth.GoogleAuthProvider();
       const result = await this.afAuth.signInWithPopup(provider);
       this.user = result.user;
       return this.user;
@@ -132,6 +142,10 @@ export class AuthService {
       console.log('Error logging out', error);
       throw error;
     }
+  }
+
+  isUserAuthenticated(): boolean {
+    return this.user != null;
   }
 }
 ```
@@ -191,7 +205,7 @@ This code initializes the Firebase app with your Firebase configuration from you
 This is also taken care of with the help of the library. 
 
 
-## Step 5: Setup a simple login form
+## Step 5: Setup a simple login component
 
 Add Angular Material to easily style our page:
 
@@ -205,9 +219,279 @@ Add [Toastr](https://www.npmjs.com/package/ngx-toastr) dependency for displaying
 npm install ngx-toastr --save
 ```
 
+**Add a simple Login component:**  
+*login.component.ts*
+```typescript
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {AuthService} from "../service/auth.service";
+import {ToastrService} from "ngx-toastr";
 
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
+})
+export class LoginComponent implements OnInit {
+  loginForm!: FormGroup;
+  hide = true;
 
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private toastr: ToastrService
+  ) {
+  }
 
+  ngOnInit(): void {
+    this.loginForm = this.formBuilder.group({
+      email: ['', Validators.required],
+      password: ['', Validators.required]
+    });
+  }
 
+  loginWithEmail() {
+    this.authService.emailAndPasswordLogin(
+      this.loginForm.controls['email'].value,
+      this.loginForm.controls['password'].value
+    )
+    .then(() => {
+      this.toastr.success("success");
+      this.loginForm.reset();
+    });
+  }
 
+  loginWithGoogle() {
+    this.authService.googleLogin()
+      .then((user) => {
+        this.toastr.success("Hello " + user?.displayName);
+        this.loginForm.reset();
+      });
+  }
 
+  logout() {
+    this.authService.logout()
+      .then(() => {
+        this.toastr.success("Bye! See you soon.");
+      });
+  }
+
+  isUserAuthenticated() {
+    return this.authService.isUserAuthenticated();
+  }
+
+}
+```
+
+*login.component.html*  
+```html
+<div class="login-form-div center">
+  <h1 style="text-align: center">Login</h1>
+
+  <div class="form-group">
+    <form [formGroup]="loginForm">
+      <mat-form-field appearance="fill" class="form-field">
+        <input placeholder="E-mail" formControlName="email" matInput [type]="'text'" name="new-somename"
+               autocomplete="noac">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="form-field">
+        <input placeholder="Password" formControlName="password" matInput [type]="hide ? 'password' : 'text'"
+               name="new-somename" autocomplete="noac">
+        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                [attr.aria-pressed]="hide">
+          <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+      </mat-form-field>
+
+    </form>
+
+    <button mat-raised-button color="primary" class="login-btn"
+            (click)="loginWithEmail()" [disabled]="loginForm.invalid">
+      Login
+    </button>
+
+    <p>Don't have an account? <a routerLink="/register" class="btn btn-link">Sign up here</a></p>
+
+    <button mat-raised-button class="google-auth-btn" color="accent"
+            (click)="loginWithGoogle()">
+      Google Auth
+    </button>
+
+    <button mat-raised-button class="google-auth-btn" color="warn"
+            *ngIf="isUserAuthenticated()"
+            (click)="logout()">
+      Logout
+    </button>
+
+  </div>
+</div>
+```
+
+*login.component.css*  
+```css
+.login-form-div {
+  width: 40%;
+  text-align: center;
+  background: #bdc1cb;
+  border-radius: 10px;
+  box-shadow: rgba(255, 255, 255, 0.05) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.02) 0px 50px 100px -20px, rgba(0, 0, 0, 0.18) 0px 30px 60px -30px;
+}
+
+.form-group {
+  padding: 20px;
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.form-field {
+  width: 90%;
+  border-radius: 10px;
+}
+
+.login-btn, .google-auth-btn {
+  margin: 10px;
+  width: 80%;
+  font-weight: bold;
+  font-size: medium;
+  height: 45px;
+}
+```  
+
+**Then create a simple registration component:**  
+
+*register.component.ts*
+```typescript
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {AuthService} from "../service/auth.service";
+import {ToastrService} from "ngx-toastr";
+import {Router} from "@angular/router";
+
+@Component({
+  selector: 'app-register',
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.scss']
+})
+export class RegisterComponent implements OnInit{
+  registerForm!: FormGroup;
+  hide = true;
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private toastr: ToastrService,
+    private router: Router
+  ) {
+  }
+
+  ngOnInit(): void {
+    this.registerForm = this.formBuilder.group({
+      email: ['', Validators.required],
+      password: ['', Validators.required]
+    });
+  }
+
+  registerWithEmail() {
+    this.authService.emailAndPasswordRegister(
+      this.registerForm.controls['email'].value,
+      this.registerForm.controls['password'].value
+    )
+      .then(() => {
+        this.toastr.success("success");
+        this.router.navigate(['login'])
+      });
+  }
+
+}
+```  
+
+*register.component.html*  
+```html
+<div class="login-form-div center">
+  <h1 style="text-align: center">Register</h1>
+
+  <div class="form-group">
+    <form [formGroup]="registerForm">
+      <mat-form-field appearance="fill" class="form-field">
+        <input placeholder="E-mail" formControlName="email" matInput [type]="'text'" name="new-somename"
+               autocomplete="noac">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="form-field">
+        <input placeholder="Password" formControlName="password" matInput [type]="hide ? 'password' : 'text'"
+               name="new-somename" autocomplete="noac">
+        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                [attr.aria-pressed]="hide">
+          <!-- <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon> -->
+        </button>
+      </mat-form-field>
+
+    </form>
+
+    <button mat-raised-button color="primary" class="login-btn"
+            (click)="registerWithEmail()" [disabled]="registerForm.invalid">
+      Register
+    </button>
+
+    <p>Back to <a routerLink="/login" class="btn btn-link">Login</a></p>
+
+  </div>
+</div>
+```  
+
+*register.component.css*  
+```css
+.login-form-div {
+  width: 40%;
+  text-align: center;
+  background: #bdc1cb;
+  border-radius: 10px;
+  box-shadow: rgba(255, 255, 255, 0.05) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.02) 0px 50px 100px -20px, rgba(0, 0, 0, 0.18) 0px 30px 60px -30px;
+}
+
+.form-group {
+  padding: 20px;
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.form-field {
+  width: 90%;
+  border-radius: 10px;
+}
+
+.login-btn {
+  margin: 10px;
+  width: 80%;
+  font-weight: bold;
+  font-size: medium;
+  height: 45px;
+}
+```
+
+**Finally, setup the routing in the `app-routing.module.ts` file:**  
+
+*app-routing.module.ts*
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import {LoginComponent} from "./login/login.component";
+import {RegisterComponent} from "./register/register.component";
+
+const routes: Routes = [
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  {path: '', pathMatch: 'full', redirectTo: 'login'},
+  {path: '**', redirectTo: 'login'}
+  // Add any other paths here
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+```
