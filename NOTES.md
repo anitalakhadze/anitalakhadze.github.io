@@ -1,0 +1,11 @@
+I am a full-stack web developer that can work on 
+- **projects like**
+    - creating Angular UI for an existing back-end API (ex. irakli-front)
+    - creating back-end API in Spring Boot or FastAPI
+    - using Firebase to deploy UI (also, handle auth...)
+    - use Gcloud Run to quickly deploy dockerized containers
+- **activities**
+    - tutorial series on Spring Boot on Medium
+- **work experience**
+    - electronic portal for issuing and monitoring invoices with Angular (Invoice Box)
+    - enterprise billing platform for an international energy provider company (EPB)
