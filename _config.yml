@@ -50,18 +50,18 @@ round-avatar: true
 # You can change the order that they show up on the page by changing the order here.
 # Uncomment the links you want to show and add your information to each one.
 social-network-links:
+  github: anitalakhadze
+  medium: anitalakhadze
+  stackoverflow: "21803073/ani-talakhadze"
   email: "talakhadzeani@gmail.com"
+  linkedin: ani-t-4961b210b
+  facebook: talakhadzeani
+  twitter: anita_zero_one
   # rss: true  # remove this line if you don't want to show an RSS link at the bottom
-  facebook: /talakhadzeani
-  github: /anitalakhadze
-  twitter: /anita_zero_one
   # patreon: DeanAttali
   # youtube: "@daattali"
-  medium: /@anitalakhadze
 #  reddit: yourname
-  linkedin: https://www.linkedin.com/in/ani-t-4961b210b/
 #  xing: yourname
-  stackoverflow: "https://stackoverflow.com/users/21803073/ani-talakhadze"
 #  snapchat: deanat78
 #  instagram: deanat78
 #  spotify: yourname
