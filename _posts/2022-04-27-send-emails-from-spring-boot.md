@@ -2,7 +2,7 @@
 layout: post
 title: Part 3 - HOW TO
 subtitle: Send emails from a Spring Boot application
-gh-repo: https://github.com/anitalakhadze/mail-sender-demo-app
+gh-repo: anitalakhadze/mail-sender-demo-app
 gh-badge: [star, fork, follow]
 tags: [Mail, Spring Boot, Java Mail API, Maven, Java]
 comments: true

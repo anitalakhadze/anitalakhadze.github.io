@@ -2,7 +2,7 @@
 layout: post
 title: Part 5 - HOW TO
 subtitle: Work with PDF files with Apache PDFBox in Java
-gh-repo: https://github.com/anitalakhadze/apache-pdfbox-demo
+gh-repo: anitalakhadze/apache-pdfbox-demo
 gh-badge: [star, fork, follow]
 tags: [Apache, PDF, PDFBox, Spring Boot, Maven]
 comments: true

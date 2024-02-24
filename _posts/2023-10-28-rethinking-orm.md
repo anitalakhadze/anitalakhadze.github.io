@@ -2,7 +2,7 @@
 layout: post
 title: Rethinking ORM
 subtitle: Is jOOQ a Better Fit Than JPA for Your Project?
-gh-repo: https://github.com/anitalakhadze/jOOQ-demo
+gh-repo: anitalakhadze/jOOQ-demo
 gh-badge: [star, fork, follow]
 tags: [jOOQ, JPA, ORM, Spring Boot, Maven]
 comments: true

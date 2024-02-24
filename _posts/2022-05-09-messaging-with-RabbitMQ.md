@@ -2,7 +2,7 @@
 layout: post
 title: Part 4 - HOW TO
 subtitle: Configure messaging with RabbitMQ in a Spring Boot application
-gh-repo: https://github.com/anitalakhadze/rabbitmq-exchange-demo
+gh-repo: anitalakhadze/rabbitmq-exchange-demo
 gh-badge: [star, fork, follow]
 tags: [RabbitMQ, Spring Boot, Maven, Messaging, Java]
 comments: true

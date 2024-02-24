@@ -2,7 +2,7 @@
 layout: post
 title: Microservices [Part 1]
 subtitle: With Maven, Spring Boot and Docker
-gh-repo: https://github.com/anitalakhadze/microservices_practice
+gh-repo: anitalakhadze/microservices_practice
 gh-badge: [star, fork, follow]
 tags: [Microservices, Spring Boot, Maven, Docker, PostgreSQL, Java]
 comments: true
