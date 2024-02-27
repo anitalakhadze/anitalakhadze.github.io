@@ -21,7 +21,7 @@ The link to the source code repository will be added at the end of this tutorial
 Let’s start by creating a new module for Plagiarism which will be a Maven project:
 
 <figure>
-  <img src="https://i.imgur.com/gHLsTWY.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
   <figcaption><center>New module for the plagiarism microservice
 </center></figcaption>
 </figure>
@@ -40,7 +40,7 @@ For now, add Spring Boot Starter Web there inside the dependencies section of th
 You may have noticed that our new microservice has already been configured to refer to its parent — anitaservices:
 
 <figure>
-  <img src="https://i.imgur.com/gHLsTWY.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/Jn9Js5C.png" alt="Trulli" style="width:100%">
   <figcaption><center>Parent section inside the pom.xml of the Plagiarism microservice
 </center></figcaption>
 </figure>
@@ -48,7 +48,7 @@ You may have noticed that our new microservice has already been configured to re
 We can also navigate to the parent’s pom.xml file and see that the new Plagiarism module has also been added there inside the modules section:
 
 <figure>
-  <img src="https://i.imgur.com/gHLsTWY.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/5LOwtiI.png" alt="Trulli" style="width:100%">
   <figcaption><center>Modules section inside the pom.xml of the parent project
 </center></figcaption>
 </figure>
@@ -85,7 +85,7 @@ spring:
 You can also add a custom banner.txt file too if you wish.
 
 <figure>
-  <img src="https://i.imgur.com/gHLsTWY.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/wC9THdW.png" alt="Trulli" style="width:100%">
   <figcaption><center>Custom banner.txt file
 </center></figcaption>
 </figure>
@@ -100,7 +100,7 @@ Next, let’s add a database for the Plagiarism microservice.
 In a typical microservice architecture, you will usually want to have one database per microservice. However, for the purposes of this tutorial, let’s just use the same database instance and add a database inside:
 
 <figure>
-  <img src="https://i.imgur.com/gHLsTWY.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/U042uG2.png" alt="Trulli" style="width:100%">
   <figcaption><center>Creating a new database — Plagiarism
 </center></figcaption>
 </figure>
@@ -180,7 +180,7 @@ public class PlagiarismCheckHistory {
 Restart the Plagiarism microservice and make sure that everything works. You can check the sequence and the table in pgadmin too on port 5050:
 
 <figure>
-  <img src="https://i.imgur.com/gHLsTWY.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/1yn6wKm.png" alt="Trulli" style="width:100%">
   <figcaption><center>Recently created sequence and a table inside the plagiarism database
 </center></figcaption>
 </figure>
@@ -382,7 +382,7 @@ Time has come to test our application!
 Restart both microservices, open the Postman and send a request to the student microservice. You will receive a 200 status code:
 
 <figure>
-  <img src="https://i.imgur.com/gHLsTWY.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/qQfHhZM.png" alt="Trulli" style="width:100%">
   <figcaption><center>Testing the changes from Postman
 </center></figcaption>
 </figure>
@@ -390,13 +390,13 @@ Restart both microservices, open the Postman and send a request to the student m
 Open pgadmin and check the databases:
 
 <figure>
-  <img src="https://i.imgur.com/gHLsTWY.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/0xWgvLU.png" alt="Trulli" style="width:100%">
   <figcaption><center>Student database
 </center></figcaption>
 </figure>
 
 <figure>
-  <img src="https://i.imgur.com/gHLsTWY.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/V6c4nK7.png" alt="Trulli" style="width:100%">
   <figcaption><center>Plagiarism database
 </center></figcaption>
 </figure>
