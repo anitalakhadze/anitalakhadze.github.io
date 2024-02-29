@@ -61,7 +61,7 @@ In this section, we will build a service that will be responsible for service di
 Create a new module called eurekaserver inside the project:
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/YOgPFJB.png" alt="Trulli" style="width:100%">
   <figcaption><center>Creating a new module for the eureka server inside the project
 </center></figcaption>
 </figure>
@@ -80,7 +80,7 @@ Open the pom.xml file of this newly created module and add the following depende
 If you press the little blue button next to the dependencies
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/uJZhUJh.png" alt="Trulli" style="width:100%">
   <figcaption><center>Navigation to the parent library
 </center></figcaption>
 </figure>
@@ -88,7 +88,7 @@ If you press the little blue button next to the dependencies
 you will navigate to spring-cloud-netflix-dependencies of the corresponding version (because of the dependency we added in the parent’s pom.xml file):
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/3o5Uen6.png" alt="Trulli" style="width:100%">
   <figcaption><center>Spring cloud netflix dependencies, version 3.1.1
 </center></figcaption>
 </figure>
@@ -132,7 +132,7 @@ eureka:
 Add a custom banner.txt file if you wish:
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/s6Wp7it.png" alt="Trulli" style="width:100%">
   <figcaption><center>Custom banner for the eureka server module
 </center></figcaption>
 </figure>
@@ -140,7 +140,7 @@ Add a custom banner.txt file if you wish:
 When the application starts on port 8765, open the web browser and navigate to that port. You will see a web page representing a Eureka Dashboard, giving information about the service itself, including the instances currently registered with Eureka (which are none at the moment as we have not told our microservices to connect to this server).
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/BHvGej3.png" alt="Trulli" style="width:100%">
   <figcaption><center>Eureka Dashboard
 </center></figcaption>
 </figure>
@@ -191,7 +191,7 @@ eureka:
 Start the StudentApplication to see that everything works fine. From the console logs, you can see that the Discovery Client has been started:
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/mv8MuvB.png" alt="Trulli" style="width:100%">
   <figcaption><center>Logs notifying about Discovery Client
 </center></figcaption>
 </figure>
@@ -199,7 +199,7 @@ Start the StudentApplication to see that everything works fine. From the console
 If you check the web page, you will see that the instances section has been updated too:
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/dVYpXo5.png" alt="Trulli" style="width:100%">
   <figcaption><center>Updated instances section on the Eureka Dashboard
 </center></figcaption>
 </figure>
@@ -207,7 +207,7 @@ If you check the web page, you will see that the instances section has been upda
 The name of the application on the dashboard comes from the application.yml file so, giving sensible names to them will greatly help you in the future to differentiate among the applications on the web page:
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/2BrW6bO.png" alt="Trulli" style="width:100%">
   <figcaption><center>Declaring application name inside the application.yml file
 </center></figcaption>
 </figure>
@@ -215,19 +215,19 @@ The name of the application on the dashboard comes from the application.yml file
 Now go back to IntelliJ and open up the configuration, duplicate StudentApplication and modify the program arguments field:
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/n2mSCre.png" alt="Trulli" style="width:100%">
   <figcaption><center>Application configuration menu
 </center></figcaption>
 </figure>
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/YCpCFlq.png" alt="Trulli" style="width:100%">
   <figcaption><center>Duplicating the StudentApplication
 </center></figcaption>
 </figure>
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/AXOSOhS.png" alt="Trulli" style="width:100%">
   <figcaption><center>Modifying the name and program arguments for the new configuration
 </center></figcaption>
 </figure>
@@ -235,7 +235,7 @@ Now go back to IntelliJ and open up the configuration, duplicate StudentApplicat
 Run the StudentApplication 2 and reload the web page. The number of availability zones will be increased to 2 as we have two instances of StudentApplication(you will also notice that the server maintains the addresses of each of the instances):
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/FSZ6les.png" alt="Trulli" style="width:100%">
   <figcaption><center>Increased number of availability zones on the Eureka Dashboard
 </center></figcaption>
 </figure>
@@ -247,7 +247,7 @@ Now, repeat the same process for the Plagiarism module. Modify its pom.xml(add e
 Now if you start all the applications and reload the page, you will see one instance of Student and one for Plagiarism:
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/68dVqZ3.png" alt="Trulli" style="width:100%">
   <figcaption><center>Instances of Student and Plagiarism on Dashboard
 </center></figcaption>
 </figure>
@@ -272,7 +272,7 @@ Go to Student’s application.yml file and modify ddl-auto setting from update t
 We will have an internal error because of an unknown internal exception:
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/tkKhNw1.png" alt="Trulli" style="width:100%">
   <figcaption><center>Internal server error in Postman while sending a request
 </center></figcaption>
 </figure>
@@ -302,7 +302,7 @@ public class StudentConfig {
 This time, after restarting the StudentApplication, when you send a request, it won’t get confused over sending requests to the instances:
 
 <figure>
-  <img src="https://i.imgur.com/BeNfQAU.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/1W4agrb.png" alt="Trulli" style="width:100%">
   <figcaption><center>Request successfully sent from Postman
 </center></figcaption>
 </figure>
