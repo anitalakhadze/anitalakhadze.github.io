@@ -304,7 +304,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 Once we start the application and log in to it, we can actually see some data coming from the database:
 
 <figure>
-  <img src="https://i.imgur.com/SPPFleJ.png" alt="Trulli" style="width:100%">
+  <img src="https://i.imgur.com/JkUhfKS.png" alt="Trulli" style="width:100%">
   <figcaption><center>Fetching list of users after login
 </center></figcaption>
 </figure>
@@ -312,3 +312,332 @@ Once we start the application and log in to it, we can actually see some data co
 
 ## Authentication and authorization configuration  
 
+Let’s change our authentication setup to database authentication at this point to come closer to production settings. The loadUserByUsername() method from the UserDetailsService interface can be used for this in our UserServiceImpl class:
+
+```java
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService, UserDetailsService {
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found in the database");
+        }
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        user.getRoles()
+                .forEach(role -> authorities
+                        .add(new SimpleGrantedAuthority(role.getName())));
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(), user.getPassword(), authorities);
+    }
+
+    // ...
+}
+```
+
+Then, in SecurityConfiguration class, we have to add a PasswordEncoder type bean and modify the configure(AuthenticationManagerBuilder auth) and configure(HttpSecurity http) methods:
+
+```
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    private final UserDetailsService userDetailsService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(bCryptPasswordEncoder);
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+```
+
+My previous blogs cover all you need to know about Spring Security authentication and authorization, so we won’t get into more details now.
+
+
+## Generating JWT  
+
+We need to be able to generate a token, sign it, and send it to the user in some way. That’s a lot of work to do by ourselves, so let’s make use of a great external library. Add the following to the dependencies list in your pom.xml and refresh the file:
+
+```xml
+<dependency>
+    <groupId>com.auth0</groupId>
+    <artifactId>java-jwt</artifactId>
+    <version>3.18.2</version>
+</dependency>
+```
+
+Now create a new class CustomAuthenticationFilter which will extend UsernamePasswordAuthenticationFilter abstract class and override methods attemptAuthentication() and successfulAuthentication(). We can also override unsuccessfulAuthentication() method if we want to do something if the login did not succeed.
+
+attemptAuthentication() is the method called when someone tries to log in to the application. Here, we need to get hold of the username and password parameters from the request to build a UsernamePasswordAuthenticationToken object and pass it to AuthenticationManager instance for the actual authentication:
+
+```java
+@Slf4j
+public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+    private final AuthenticationManager authenticationManager;
+
+    public CustomAuthenticationFilter(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        log.info("Username: {}, password: {}", username, password);
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);
+        return authenticationManager.authenticate(authToken);
+    }
+
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        // ...
+    }
+}
+```
+
+successfulAuthentication(), as the name suggests, is called when a user has successfully logged in. Here, we need to access the user that has been authenticated — called the principal. Then we will define an algorithm with the desired cryptography. The secret key that is passed to the algorithm as an argument would normally be encrypted somewhere secure, but for this tutorial, we will leave it as a plain text.
+
+After that, we’ll be able to make a token. We’ll need to pass in a subject, which can be whatever string you want as long as it’s something unique about the user so you can identify them by that token — for example, username or Id since they’re unique to us. Then we can choose an expiration date — in our example, 10 minutes, as well as an issuer — which will be our application’s URL, and claims — which will include all of the user’s roles. Finally, we have to sign the token with the algorithm and send it to the user using response headers.
+
+```java
+@Override
+protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    User principal = (User) authResult.getPrincipal();
+    Algorithm algorithm = Algorithm.HMAC256("secretKey".getBytes());
+    String accessToken = JWT.create()
+            .withSubject(principal.getUsername())
+            .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
+            .withIssuer(request.getRequestURL().toString())
+            .withClaim("roles", principal
+                    .getAuthorities()
+                    .stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList()))
+            .sign(algorithm);
+    response.setHeader("access_token", accessToken);
+}
+```
+
+Now that we have completed the generation of JWT, we have couple of little steps left before we can test login. Firstly, we must use our PasswordEncoder to encode the passwords of new users before storing them to the database. So, add these few lines to our UserServiceImpl class:
+
+```java
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService, UserDetailsService {
+// ...
+    @Override
+    public User saveUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+// ...
+}
+```
+
+Then, we should inject our CustomAuthenticationFilter into authorization configuration. The final result will look like the following:
+
+```
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    private final UserDetailsService userDetailsService;
+    private final PasswordEncoder bCryptPasswordEncoder;
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(bCryptPasswordEncoder);
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
+        http
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().authorizeRequests().anyRequest().permitAll()
+                .and().addFilter(customAuthenticationFilter);
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+}
+```
+
+
+## Testing the application  
+
+My API client of choice is Postman, but you may use anything you like. We must enter our credentials as x-www-form-urlencoded values in the body and then browse to http://localhost:8080/login using a POST request. The access token value will be received in headers as intended.
+
+<figure>
+  <img src="https://i.imgur.com/0luPwL3.png" alt="Trulli" style="width:100%">
+  <figcaption><center>Testing the login with Postman
+</center></figcaption>
+</figure>
+
+We can go to [jwt.io](https://jwt.io/) and double-check the value to ensure that the received token has all of the information we require:
+
+<figure>
+  <img src="https://i.imgur.com/nuhekuV.png" alt="Trulli" style="width:100%">
+  <figcaption><center>Checking the token information on jwt.io
+</center></figcaption>
+</figure>
+
+We can make our life easier by returning the access token value directly in the body of the response instead of using response headers. Simply modify the successfulAuthentication() method as follows:
+
+```java
+@Override
+protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
+    User principal = (User) authResult.getPrincipal();
+    Algorithm algorithm = Algorithm.HMAC256("secretKey".getBytes());
+    String accessToken = JWT.create()
+            .withSubject(principal.getUsername())
+            .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
+            .withIssuer(request.getRequestURL().toString())
+            .withClaim("roles", principal
+                    .getAuthorities()
+                    .stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList()))
+            .sign(algorithm);
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    new ObjectMapper().writeValue(response.getOutputStream(), accessToken);
+}
+```
+
+After restarting the application and testing again, we now receive the JWT right in the response body:
+
+<figure>
+  <img src="https://i.imgur.com/SPPFleJ.png" alt="Trulli" style="width:100%">
+  <figcaption><center>Testing the login with Postman
+</center></figcaption>
+</figure>
+
+
+## Completing the authorization configuration  
+
+Now let’s see whether we can really use our access token to access the server’s resources. At this point, it’s almost as if we don’t have any security at all, because we’re allowing any request without authorization. Modify the configure(HttpSecurity http) method to allow unauthorized requests only to the “/login” endpoint and to approve requests to all other endpoints as follows:
+
+```java
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
+    http
+            .csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and().authorizeRequests().antMatchers("/login").permitAll()
+            .and().authorizeRequests().antMatchers(HttpMethod.GET, "/api/user/**").hasAnyAuthority("ROLE_USER")
+            .and().authorizeRequests().antMatchers(HttpMethod.POST, "/api/user/save/**").hasAnyAuthority("ROLE_ADMIN")
+            .and().authorizeRequests().anyRequest().authenticated()
+            .and().addFilter(customAuthenticationFilter);
+}
+```
+
+After testing the application again, you will see that everything works as expected.
+
+
+## Validating the JWT  
+
+When a user signs in to the program, we can already give them an access token. Now we need to be able to accept this token from the user and then grant them access to the resources once we’ve confirmed that it’s valid. To do so, we’ll need to create an authorization filter. This filter will intercept all requests coming into the application, search for that specific token, process it, and then determine whether or not the user has access to specified resources.
+
+Let’s make a new class that implements OncePerRequestFilter named CustomAuthorizationFilter. To filter each request that comes into the application, we’ll need to implement a method called doFilterInternal(). We don’t want the “/login” path to be authorized, therefore that’s the first thing we should check. If that’s the case, we know the user is simply attempting to log in, therefore we don’t need to do anything but transmit the request and answer to the next filter in the chain. If anything goes wrong throughout the process, we’ll need to catch exceptions.
+
+```java
+@Override
+protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    if (request.getServletPath().equals("/login")) {
+        filterChain.doFilter(request, response);
+    } else {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            try {
+                String token = authorizationHeader.substring("Bearer ".length());
+                Algorithm algorithm = Algorithm.HMAC256("secretKey".getBytes());
+                JWTVerifier verifier = JWT.require(algorithm).build();
+                DecodedJWT decodedJWT = verifier.verify(token);
+                String username = decodedJWT.getSubject();
+                String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
+                Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                Arrays.stream(roles).forEach(role ->
+                        authorities.add(new SimpleGrantedAuthority(role)));
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+                filterChain.doFilter(request, response);
+            } catch (Exception ex) {
+                log.error("Error loggin in: {}", ex.getMessage());
+                response.setStatus(FORBIDDEN.value());
+                String errorMessage = ex.getMessage();
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                new ObjectMapper().writeValue(response.getOutputStream(), errorMessage);
+            }
+        } else {
+            filterChain.doFilter(request, response);
+        }
+    }
+}
+```
+
+We can now add this filter to our authorization configuration, but we must ensure that it comes before any other filters since we want to intercept all requests before they reach any other filters.
+
+```java
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
+    http
+            .csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and().authorizeRequests().antMatchers("/login").permitAll()
+            .and().authorizeRequests().antMatchers(HttpMethod.GET, "/api/user/**").hasAnyAuthority("ROLE_USER")
+            .and().authorizeRequests().antMatchers(HttpMethod.POST, "/api/user/save/**").hasAnyAuthority("ROLE_ADMIN")
+            .and().authorizeRequests().anyRequest().authenticated()
+            .and().addFilter(customAuthenticationFilter)
+            .addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+}
+```
+
+The authentication and authorization filters are now available. Let’s test the outcomes by refreshing the application. If we try to access any resource without providing any authorization information, we will receive the following error response:
+
+<figure>
+  <img src="https://i.imgur.com/155bLWi.png" alt="Trulli" style="width:100%">
+  <figcaption><center>Error response when no authorization header sent
+</center></figcaption>
+</figure>
+
+Even if we try to submit an authorization header with a random string attached to “Bearer ”, the library will respond with an error message:
+
+<figure>
+  <img src="https://i.imgur.com/45vz9Ry.png" alt="Trulli" style="width:100%">
+  <figcaption><center>Error message when an incorrect authorization header is sent
+</center></figcaption>
+</figure>
+
+If we submit the request with a valid JWT value in the authorization header, we will get the following response as expected:
+
+<figure>
+  <img src="https://i.imgur.com/Y5c8jSd.png" alt="Trulli" style="width:100%">
+  <figcaption><center>Response when a valid authorization header is sent
+</center></figcaption>
+</figure>
+
+<center>* * *</center>
+
+We learned how to protect a backend application using JWT, Spring Boot, and Spring Security in this tutorial. We used a JWT access token to get access to resources from secured endpoints. From now on, you can already create a way for two applications to connect and communicate with each other on your own.
+
+There are more interesting and exciting topics to come, so stay tuned!
