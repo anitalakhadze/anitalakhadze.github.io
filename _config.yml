@@ -10,7 +10,7 @@
 ############################
 
 # Name of website
-title: Ani Talakhadze
+title: Anita's Dev Corner
 
 # Your name to show in the footer
 author: Ani Talakhadze
@@ -19,9 +19,9 @@ author: Ani Talakhadze
 # --- List of links in the navigation bar --- #
 ###############################################
 
-navbar-links:
-  About: about
-  Writing: /
+# navbar-links:
+#   About: about
+#   Writing: /
   # Bookshelf: /bookshelf
   # Resources:
   #   - Beautiful Jekyll: "https://beautifuljekyll.com"
