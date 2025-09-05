@@ -20,11 +20,14 @@ author: Ani Talakhadze
 ###############################################
 
 navbar-links:
-  About Me: "aboutme"
-  Resources:
-    - Beautiful Jekyll: "https://beautifuljekyll.com"
-    - Learn markdown: "https://www.markdowntutorial.com/"
-  Author's home: "https://anitalakhadze.github.io"
+  About: about
+  Writing: /
+  # Bookshelf: /bookshelf
+  # Resources:
+  #   - Beautiful Jekyll: "https://beautifuljekyll.com"
+  #   - Learn markdown: "https://www.markdowntutorial.com/"
+  # Author's home: "https://anitalakhadze.dev"
+  
 
 ################
 # --- Logo --- #
@@ -32,7 +35,7 @@ navbar-links:
 
 # Image to show in the navigation bar - works best with a square image
 # Remove this parameter if you don't want an image in the navbar
-avatar: "/assets/img/avatar-icon.png"
+# avatar: "/assets/img/avatar-icon.png"
 
 # By default, the image is cut into a circle. You can disable this behaviour by setting 'round-avatar: false'
 round-avatar: true
@@ -92,13 +95,16 @@ rss-description: This website is a virtual proof that I'm awesome
 # Select which social network share links to show in posts
 share-links-active:
   twitter: true
-  facebook: true
+  facebook: false
   linkedin: true
   vk: false
 
+# Show "last updated {date}" as a footer
+
+last_updated: true 
 # How to display the link to your website in the footer
 # Remove this if you don't want a link in the footer
-url-pretty: "MyWebsite.com"
+url-pretty: "anitalakhadze.com"
 
 # Add the website title to the title of every page
 title-on-all-pages: true
@@ -113,7 +119,7 @@ feed_show_excerpt: true
 feed_show_tags: true
 
 # Add a search button to the navbar
-post_search: true
+post_search: false
 
 # Add a button in the footer to edit the current page. Only works if your website is hosted on GitHub
 edit_page_button: true
@@ -132,17 +138,17 @@ navbar-var-length: false
 
 # Personalize the colours in your website. Colour values can be any valid CSS colour
 
-navbar-col: "#EAEAEA"
-navbar-text-col: "#404040"
-navbar-border-col: "#DDDDDD"
-page-col: "#FFFFFF"
-text-col: "#404040"
-link-col: "#008AFF"
-hover-col: "#0085A1"
-footer-col: "#EAEAEA"
-footer-text-col: "#777777"
-footer-link-col: "#404040"
-footer-hover-col: "#0085A1"
+navbar-col: "#F7F7F7"
+navbar-text-col: "#000000"
+navbar-border-col: "#000000"
+page-col: "#F7F7F7"
+text-col: "#000000"
+link-col: "#000000"
+hover-col: "#222222"
+footer-col: "#FFFFFF"
+footer-text-col: "#000000"
+footer-link-col: "#000000"
+footer-hover-col: "#222222"
 
 # Alternatively, the navbar, footer, and page background can be set to an image
 # instead of colour
@@ -259,8 +265,8 @@ date_format: "%B %-d, %Y"
 timezone: "America/Toronto"
 markdown: kramdown
 highlighter: rouge
-permalink: /:year-:month-:day-:title/
-paginate: 5
+permalink: /:title/
+paginate: 999
 
 kramdown:
   input: GFM
