@@ -25,15 +25,16 @@ common-js:
 {% include head.html %}
 
 <body>
-  {% include gtm_body.html %}
-
-  {% include nav.html %}
-
-  {{ content }}
-
-  {% include footer.html %}
-
-  {% include footer-scripts.html %}
-
+  <div class="max-w-[675px] mx-auto text-lg">
+    {% include gtm_body.html %}
+    
+    {% include nav.html %}
+    
+    {{ content }}
+    
+    {% include footer.html %}
+    
+    {% include footer-scripts.html %}
+  </div>
 </body>
 </html>
